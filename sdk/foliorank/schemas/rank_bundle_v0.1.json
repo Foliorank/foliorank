@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "required": ["version", "items"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["v0.1"]
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["id", "portfolio"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "portfolio": {
+            "type": "object",
+            "required": ["portfolio_name", "allocation", "rationale"],
+            "properties": {
+              "portfolio_name": {"type": "string"},
+              "allocation": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["asset", "weight"],
+                  "properties": {
+                    "asset": {"type": "string"},
+                    "weight": {"type": "number", "minimum": 0, "maximum": 100}
+                  }
+                }
+              },
+              "rationale": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
