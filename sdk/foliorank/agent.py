@@ -48,30 +48,94 @@ class ControlledAgent:
             "transparent_decisions": True
         }
 
-    async def plan(self, description: str) -> Dict[str, Any]:
+    def plan(self, description: str) -> Dict[str, Any]:
         """
         Process natural language description into structured portfolio specification.
+
+        This is a simulation-only function that converts natural language inputs
+        into structured portfolio allocations for educational and research purposes.
+        No real trading, execution, or financial advice is provided.
 
         Args:
             description: Natural language portfolio description
 
         Returns:
-            Structured portfolio specification dictionary
+            Structured portfolio specification with the following format:
+            {
+                "portfolio_name": string,
+                "allocation": [{"asset": string, "weight": int}, ...],
+                "rationale": string
+            }
 
         Raises:
             ValueError: If description cannot be processed or violates constraints
         """
-        # TODO: Implement natural language processing
-        # TODO: Validate against behavioral constraints
-        # TODO: Log decision process for audit trail
+        # Convert to lowercase for case-insensitive matching
+        desc_lower = description.lower()
 
-        portfolio_spec = {
-            "description": description,
-            "structure": {},
-            "constraints_applied": self.constraints.copy(),
-            "timestamp": None  # TODO: Add timestamp
+        # Define safe, abstract asset classes only (no real symbols)
+        # This prevents any association with actual trading or specific investments
+        asset_classes = {
+            "equities": "Large-cap equities",
+            "bonds": "Government bonds",
+            "cash": "Cash equivalents"
         }
 
+        # Rule-based portfolio mapping based on keywords
+        # Each portfolio is conservative and educational in nature
+        if "growth" in desc_lower or "aggressive" in desc_lower:
+            # Growth-oriented but still conservative: equities dominant
+            portfolio_name = "Growth Simulation Portfolio"
+            allocation = [
+                {"asset": asset_classes["equities"], "weight": 70},
+                {"asset": asset_classes["bonds"], "weight": 25},
+                {"asset": asset_classes["cash"], "weight": 5}
+            ]
+            rationale = "This simulation portfolio emphasizes equity exposure while maintaining conservative allocations to bonds and cash for stability."
+
+        elif "stability" in desc_lower or "conservative" in desc_lower or "safe" in desc_lower:
+            # Stability-focused: bonds and cash dominant
+            portfolio_name = "Stability Simulation Portfolio"
+            allocation = [
+                {"asset": asset_classes["bonds"], "weight": 70},
+                {"asset": asset_classes["cash"], "weight": 30}
+            ]
+            rationale = "This simulation portfolio prioritizes stability through government bonds and cash equivalents, suitable for conservative risk preferences."
+
+        elif "balanced" in desc_lower or "moderate" in desc_lower:
+            # Balanced approach: mix of all three asset classes
+            portfolio_name = "Balanced Simulation Portfolio"
+            allocation = [
+                {"asset": asset_classes["equities"], "weight": 50},
+                {"asset": asset_classes["bonds"], "weight": 40},
+                {"asset": asset_classes["cash"], "weight": 10}
+            ]
+            rationale = "This simulation portfolio provides balance across equities, bonds, and cash, offering both growth potential and stability."
+
+        else:
+            # Default to balanced portfolio for unclear or unspecified requests
+            # This ensures safe, predictable behavior for educational purposes
+            portfolio_name = "Balanced Simulation Portfolio"
+            allocation = [
+                {"asset": asset_classes["equities"], "weight": 50},
+                {"asset": asset_classes["bonds"], "weight": 40},
+                {"asset": asset_classes["cash"], "weight": 10}
+            ]
+            rationale = "This simulation portfolio provides a balanced approach suitable for general portfolio construction education and research."
+
+        # Validate weights sum to exactly 100 (safety check)
+        total_weight = sum(item["weight"] for item in allocation)
+        if total_weight != 100:
+            raise ValueError(f"Portfolio weights must sum to 100, got {total_weight}")
+
+        # Create the structured output
+        portfolio_spec = {
+            "portfolio_name": portfolio_name,
+            "allocation": allocation,
+            "rationale": rationale
+        }
+
+        # Log the decision for audit purposes
         self._log_decision("portfolio_planning", {
             "input": description,
             "output": portfolio_spec
