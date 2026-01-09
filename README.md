@@ -1,84 +1,46 @@
-Foliorank (Public Repository)
+# Foliorank
 
-What is Foliorank?
+## Project Overview
 
-Foliorank is an open-source framework for simulating and analyzing portfolio configurations using large language models under strict behavioral constraints.
+Foliorank is a simulation-first, AI-assisted portfolio research framework designed for educational and analytical purposes. The framework enables the systematic exploration of portfolio construction methodologies through deterministic simulations, with a focus on transparency and behavioral constraints.
 
-The project focuses on:
-  •  Structured portfolio representation
-  •  Deterministic simulation
-  •  Reproducible outputs
-  •  Transparent audit trails
+The framework processes natural language descriptions and converts them into structured portfolio specifications for simulation and analysis. All operations occur within a controlled simulation environment, with no connection to external financial systems or real-world execution.
 
-⸻
+## Core Principles
 
-What this project does
-  •  Converts natural language inputs into structured portfolio specifications
-  •  Simulates portfolios using historical datasets
-  •  Produces analytical and explanatory outputs
-  •  Enforces strict action constraints through MCP
-  •  Logs all decisions for reproducibility
+- **Simulation-only**: All operations are contained within a simulation environment
+- **Deterministic & reproducible**: Analysis results can be consistently reproduced given the same inputs
+- **Transparent decision processes**: Framework decisions and transformations are documented and auditable
+- **Safety-first AI behavior**: AI components operate under strict behavioral constraints designed to prevent unintended actions
 
-⸻
+## What Foliorank Is
 
-What this project does NOT do
-  •  Execute real-world transactions
-  •  Connect to brokers or exchanges
-  •  Provide recommendations or advice
-  •  Guarantee outcomes
-  •  Store sensitive personal data
+- Portfolio construction and comparison framework
+- Research and learning tool for portfolio analysis
+- Strategy simulation environment
+- Open-source SDK for portfolio research
 
-⸻
+## What Foliorank Is NOT
 
-Architecture (High Level)
+- Not a trading platform
+- Not an execution engine
+- Not an investment advisor
+- Not a broker or exchange
+- Does not provide financial advice
 
-User Input
-   ↓
-ControlledAgent
-   ↓
-MCP Validation
-   ↓
-Planner / Simulator
-   ↓
-Structured Output
-   ↓
-Audit Log (Hash + Timestamp)
+## Simulation-Only Disclaimer
 
+Foliorank operates exclusively within simulation environments and does not execute any real-world transactions. The framework is designed for research, education, and analytical purposes only. No recommendations, guarantees, or advice are provided. Users are responsible for their own decisions and actions.
 
-⸻
+## High-Level Architecture
 
-Installation
+The framework consists of two main components:
 
-pip install foliorank
+- **SDK (open-source, simulation-only)**: Core simulation and analysis functionality
+- **Cloud services (future, optional, separate)**: Extended capabilities for larger-scale simulations
 
+The SDK provides the primary interface for portfolio research and maintains strict separation between simulation logic and any potential future services.
 
-⸻
+## Project Status
 
-Example (Simulation Only)
-
-from foliorank import ControlledAgent
-
-agent = ControlledAgent()
-
-portfolio = await agent.plan(
-    "Create a diversified portfolio for simulation purposes"
-)
-
-result = await agent.simulate(portfolio, dataset_version="v1.0")
-
-
-⸻
-
-Intended Audience
-  •  Researchers
-  •  Developers exploring LLM-driven systems
-  •  Educational environments
-  •  Experimental analysis workflows
-
-⸻
-
-License
-
-MIT License
-
-⸻
+This is an early-stage project with a documentation-first approach. APIs and interfaces may evolve as the project develops. The current focus is on establishing robust simulation foundations and clear behavioral constraints.
