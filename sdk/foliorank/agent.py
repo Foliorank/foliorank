@@ -11,6 +11,7 @@ import asyncio
 from .mcp import MCPEnforcer, MCPViolation
 from .schemas import portfolio_validator
 from .simulation import SimulationEngine
+from .audit import AuditLog
 
 
 class ControlledAgent:
@@ -42,6 +43,8 @@ class ControlledAgent:
         self.schema = portfolio_validator
         # Simulation Engine - deterministic portfolio simulation
         self.simulation_engine = SimulationEngine()
+        # Audit Log - cryptographic proof of operations
+        self.audit = AuditLog()
 
     def _default_constraints(self) -> Dict[str, Any]:
         """
@@ -132,6 +135,44 @@ class ControlledAgent:
         })
 
         return simulation_result
+
+    def run_full_cycle(self, description: str) -> Dict[str, Any]:
+        """
+        Run the complete Foliorank pipeline with cryptographic audit logging.
+
+        This method executes the full cycle: input validation → portfolio planning →
+        schema validation → simulation → audit logging with SHA256 hash.
+
+        The resulting audit hash serves as cryptographic proof that the results
+        were produced according to the defined rules and can be verified later.
+
+        Args:
+            description: Natural language portfolio description
+
+        Returns:
+            Complete results with portfolio, simulation, and audit hash:
+            {
+                "portfolio": {...},
+                "simulation": {...},
+                "audit_hash": "SHA256..."
+            }
+        """
+        # Execute the complete pipeline
+        portfolio = self.plan(description)
+        simulation_result = self.simulate(portfolio)
+
+        # Create audit entry with cryptographic hash
+        audit_entry = self.audit.log(
+            description=description,
+            portfolio=portfolio,
+            result=simulation_result
+        )
+
+        return {
+            "portfolio": portfolio,
+            "simulation": simulation_result,
+            "audit_hash": audit_entry["hash"]
+        }
 
     def _build_portfolio(self, description: str) -> Dict[str, Any]:
         """
