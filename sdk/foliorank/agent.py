@@ -9,6 +9,8 @@ and generates structured portfolio specifications for simulation purposes.
 from typing import Dict, Any, Optional
 import asyncio
 from .mcp import MCPEnforcer, MCPViolation
+from .schemas import portfolio_validator
+from .simulation import SimulationEngine
 
 
 class ControlledAgent:
@@ -36,6 +38,10 @@ class ControlledAgent:
         self.audit_log = []
         # MCP Enforcer - required gatekeeper for all operations
         self.mcp = MCPEnforcer()
+        # Schema validator - ensures portfolio structure integrity
+        self.schema = portfolio_validator
+        # Simulation Engine - deterministic portfolio simulation
+        self.simulation_engine = SimulationEngine()
 
     def _default_constraints(self) -> Dict[str, Any]:
         """
@@ -93,6 +99,39 @@ class ControlledAgent:
         })
 
         return portfolio_spec
+
+    def simulate(self, portfolio: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Run deterministic simulation on a validated portfolio.
+
+        This method ensures the portfolio conforms to the required schema
+        before executing a deterministic simulation. The same portfolio
+        will always produce identical simulation results.
+
+        Args:
+            portfolio: Portfolio specification dictionary from plan()
+
+        Returns:
+            Simulation results with expected return, volatility, and metadata
+
+        Raises:
+            ValueError: If portfolio fails schema validation
+        """
+        # Step 1: Validate portfolio against schema
+        # This ensures structural integrity and safety constraints
+        self.schema.validate(portfolio)
+
+        # Step 2: Run deterministic simulation
+        # Same input always produces same output
+        simulation_result = self.simulation_engine.run(portfolio)
+
+        # Log the simulation for audit purposes
+        self._log_decision("portfolio_simulation", {
+            "input_portfolio": portfolio,
+            "simulation_result": simulation_result
+        })
+
+        return simulation_result
 
     def _build_portfolio(self, description: str) -> Dict[str, Any]:
         """

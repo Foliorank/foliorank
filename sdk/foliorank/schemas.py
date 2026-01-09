@@ -9,6 +9,8 @@ data sources or execution systems.
 
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+import json
+import os
 
 
 @dataclass
@@ -101,6 +103,75 @@ REQUIRED_SIMULATION_FIELDS = [
     "audit_info"
 ]
 
-# TODO: Add schema validation functions
-# TODO: Implement schema versioning
-# TODO: Add schema migration utilities
+# Portfolio Schema Validator
+class PortfolioValidator:
+    """
+    Validates portfolio specifications against the defined JSON schema.
+
+    This validator ensures that all portfolio outputs conform to the
+    required structure and safety constraints for simulation-only operation.
+    """
+
+    def __init__(self):
+        self.schema_path = os.path.join(os.path.dirname(__file__), "portfolio.json")
+        with open(self.schema_path, 'r') as f:
+            self.schema = json.load(f)
+
+    def validate(self, portfolio: Dict[str, Any]) -> None:
+        """
+        Validate a portfolio specification against the schema.
+
+        Args:
+            portfolio: Portfolio dictionary to validate
+
+        Raises:
+            ValueError: If portfolio fails schema validation
+        """
+        # Check required top-level fields
+        required_fields = self.schema["required"]
+        for field in required_fields:
+            if field not in portfolio:
+                raise ValueError(f"Missing required field: {field}")
+
+        # Validate portfolio_name
+        if not isinstance(portfolio["portfolio_name"], str) or len(portfolio["portfolio_name"]) == 0:
+            raise ValueError("portfolio_name must be non-empty string")
+
+        # Validate allocation array
+        allocation = portfolio["allocation"]
+        if not isinstance(allocation, list) or len(allocation) == 0:
+            raise ValueError("allocation must be non-empty array")
+
+        total_weight = 0
+        for item in allocation:
+            if not isinstance(item, dict):
+                raise ValueError("allocation items must be objects")
+
+            # Check required fields in allocation items
+            if "asset" not in item or "weight" not in item:
+                raise ValueError("allocation items must have 'asset' and 'weight' fields")
+
+            asset = item["asset"]
+            weight = item["weight"]
+
+            # Validate asset is string
+            if not isinstance(asset, str) or len(asset) == 0:
+                raise ValueError("asset must be non-empty string")
+
+            # Validate weight is number between 0-100
+            if not isinstance(weight, (int, float)) or weight < 0 or weight > 100:
+                raise ValueError(f"weight must be number between 0-100, got {weight}")
+
+            total_weight += weight
+
+        # Validate total weight equals exactly 100
+        if abs(total_weight - 100) > 0.001:  # Allow for floating point precision
+            raise ValueError(f"Allocation weights must sum to exactly 100, got {total_weight}")
+
+        # Validate rationale
+        if not isinstance(portfolio["rationale"], str) or len(portfolio["rationale"]) == 0:
+            raise ValueError("rationale must be non-empty string")
+
+
+# Global validator instance
+portfolio_validator = PortfolioValidator()

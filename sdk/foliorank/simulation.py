@@ -103,6 +103,90 @@ class SimulationEngine:
         }
         self.audit_trail.append(audit_entry)
 
+    def run(self, portfolio: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Execute deterministic portfolio simulation.
+
+        This method runs a rule-based simulation that produces consistent,
+        reproducible results for the same portfolio input. No randomness,
+        external data, or APIs are used - only deterministic calculations
+        based on portfolio composition.
+
+        Args:
+            portfolio: Validated portfolio specification dictionary
+
+        Returns:
+            Simulation results with the following structure:
+            {
+                "expected_return": float,  # Annual expected return (%)
+                "volatility": float,       # Annual volatility (%)
+                "time_horizon": "long_term",
+                "simulation_version": "v0.1"
+            }
+        """
+        allocation = portfolio["allocation"]
+
+        # Calculate portfolio composition weights
+        equities_weight = 0
+        bonds_weight = 0
+        cash_weight = 0
+
+        for item in allocation:
+            asset = item["asset"]
+            weight = item["weight"]
+
+            if "equities" in asset.lower():
+                equities_weight = weight
+            elif "bonds" in asset.lower():
+                bonds_weight = weight
+            elif "cash" in asset.lower():
+                cash_weight = weight
+
+        # Deterministic return and risk calculations based on asset allocation
+        # These are rule-based approximations for educational purposes only
+
+        # Expected returns (annual %): Equities ~7%, Bonds ~3%, Cash ~1%
+        equities_return = 7.0
+        bonds_return = 3.0
+        cash_return = 1.0
+
+        expected_return = (
+            equities_weight * equities_return +
+            bonds_weight * bonds_return +
+            cash_weight * cash_return
+        ) / 100
+
+        # Volatility (annual %): Equities ~15%, Bonds ~5%, Cash ~0.5%
+        equities_vol = 15.0
+        bonds_vol = 5.0
+        cash_vol = 0.5
+
+        # Portfolio volatility (simplified - doesn't account for correlations)
+        volatility = (
+            equities_weight * equities_vol +
+            bonds_weight * bonds_vol +
+            cash_weight * cash_vol
+        ) / 100
+
+        # Round to 1 decimal place for consistency
+        expected_return = round(expected_return, 1)
+        volatility = round(volatility, 1)
+
+        simulation_result = {
+            "expected_return": expected_return,
+            "volatility": volatility,
+            "time_horizon": "long_term",
+            "simulation_version": "v0.1"
+        }
+
+        # Audit the simulation run
+        self._audit_operation("simulation_run", {
+            "input_portfolio": portfolio,
+            "output": simulation_result
+        })
+
+        return simulation_result
+
     def get_audit_trail(self) -> List[Dict[str, Any]]:
         """
         Retrieve the complete audit trail of simulation operations.
