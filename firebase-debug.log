@@ -1,0 +1,19 @@
+[debug] [2026-01-09T13:46:52.894Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-01-09T13:46:52.897Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-01-09T13:46:52.898Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-01-09T13:46:52.898Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-09T13:46:52.898Z] > authorizing via signed-in user (contact@globalhashtag.com)
+[debug] [2026-01-09T13:46:52.899Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-01-09T13:46:52.906Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-09T13:46:52.906Z] > authorizing via signed-in user (contact@globalhashtag.com)
+[debug] [2026-01-09T13:46:52.907Z] Checked if tokens are valid: false, expires at: 1767900834903
+[debug] [2026-01-09T13:46:52.907Z] Checked if tokens are valid: false, expires at: 1767900834903
+[debug] [2026-01-09T13:46:52.907Z] > refreshing access token with scopes: []
+[debug] [2026-01-09T13:46:52.907Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-01-09T13:46:52.908Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-01-09T13:46:53.019Z] Checked if tokens are valid: false, expires at: 1767900834903
+[debug] [2026-01-09T13:46:53.019Z] Checked if tokens are valid: false, expires at: 1767900834903
+[debug] [2026-01-09T13:46:53.019Z] > refreshing access token with scopes: []
+[debug] [2026-01-09T13:46:53.019Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-01-09T13:46:53.019Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-01-09T13:46:53.138Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
