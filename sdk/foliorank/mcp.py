@@ -13,6 +13,16 @@ from typing import Dict, Any, List, Callable, Optional
 from enum import Enum
 
 
+class MCPViolation(Exception):
+    """
+    Exception raised when MCP (Model Control Protocol) constraints are violated.
+
+    This exception is thrown when input or output content violates the safety
+    and behavioral constraints defined for the Foliorank simulation framework.
+    """
+    pass
+
+
 class ActionType(Enum):
     """Enumeration of allowed action types within the framework."""
     PORTFOLIO_PLANNING = "portfolio_planning"
@@ -168,3 +178,105 @@ class MCPController:
             "constraint_types": [c.name for c in self.constraints],
             "validation_history": len(self.audit_log)
         }
+
+
+class MCPEnforcer:
+    """
+    MCP Enforcer - Gatekeeper for safe portfolio generation.
+
+    This class enforces strict behavioral constraints on both input and output
+    to ensure Foliorank remains a simulation-only, educational framework.
+    No portfolio can be generated without passing through these checks.
+
+    Attributes:
+        forbidden_input_patterns: List of patterns that must be blocked in input
+        forbidden_output_patterns: List of patterns that must be blocked in output
+    """
+
+    def __init__(self):
+        # Input blocking patterns (investment/trading language)
+        self.forbidden_input_patterns = [
+            "buy", "sell", "invest", "recommend", "guarantee",
+            "should", "must", "will profit", "guaranteed returns",
+            "aggressive investment", "high risk high reward"
+        ]
+
+        # Output validation rules
+        self.allowed_asset_classes = {
+            "Large-cap equities",
+            "Government bonds",
+            "Cash equivalents"
+        }
+
+    def pre_check(self, text: str) -> None:
+        """
+        Pre-flight check on input text before portfolio generation.
+
+        Raises MCPViolation if forbidden investment/trading language is detected.
+
+        Args:
+            text: Input text to validate
+
+        Raises:
+            MCPViolation: If input contains forbidden patterns
+        """
+        text_lower = text.lower()
+
+        for pattern in self.forbidden_input_patterns:
+            if pattern in text_lower:
+                raise MCPViolation(
+                    f"Input contains forbidden pattern '{pattern}'. "
+                    f"Foliorank is simulation-only and cannot process investment advice requests."
+                )
+
+    def post_check(self, output: Dict[str, Any]) -> None:
+        """
+        Post-generation validation of portfolio output.
+
+        Validates that output conforms to simulation-only constraints:
+        - Only abstract asset classes allowed
+        - Allocation weights must sum to exactly 100
+        - No real financial symbols or specific investments
+
+        Args:
+            output: Portfolio specification dictionary to validate
+
+        Raises:
+            MCPViolation: If output violates safety constraints
+        """
+        # Validate required output structure
+        required_keys = {"portfolio_name", "allocation", "rationale"}
+        if not all(key in output for key in required_keys):
+            raise MCPViolation("Output missing required keys")
+
+        # Validate allocation structure and weights
+        allocation = output.get("allocation", [])
+        if not isinstance(allocation, list):
+            raise MCPViolation("Allocation must be a list")
+
+        total_weight = 0
+        for item in allocation:
+            if not isinstance(item, dict) or "asset" not in item or "weight" not in item:
+                raise MCPViolation("Allocation items must have 'asset' and 'weight' keys")
+
+            asset = item["asset"]
+            weight = item["weight"]
+
+            # Block real financial symbols (case-insensitive)
+            asset_lower = asset.lower()
+            if any(symbol in asset_lower for symbol in ["aapl", "btc", "eth", "tsla", "amzn", "goog"]):
+                raise MCPViolation(f"Real financial symbols not allowed: {asset}")
+
+            # Ensure only abstract asset classes
+            if asset not in self.allowed_asset_classes:
+                raise MCPViolation(f"Asset class not allowed: {asset}. Only abstract classes permitted.")
+
+            # Validate weight is integer and positive
+            if not isinstance(weight, int) or weight <= 0:
+                raise MCPViolation(f"Weight must be positive integer: {weight}")
+
+            total_weight += weight
+
+        # Ensure weights sum to exactly 100
+        if total_weight != 100:
+            raise MCPViolation(f"Allocation weights must sum to 100, got {total_weight}")

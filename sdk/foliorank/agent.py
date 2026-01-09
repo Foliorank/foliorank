@@ -8,6 +8,7 @@ and generates structured portfolio specifications for simulation purposes.
 
 from typing import Dict, Any, Optional
 import asyncio
+from .mcp import MCPEnforcer, MCPViolation
 
 
 class ControlledAgent:
@@ -33,6 +34,8 @@ class ControlledAgent:
         """
         self.constraints = constraints or self._default_constraints()
         self.audit_log = []
+        # MCP Enforcer - required gatekeeper for all operations
+        self.mcp = MCPEnforcer()
 
     def _default_constraints(self) -> Dict[str, Any]:
         """
@@ -54,7 +57,8 @@ class ControlledAgent:
 
         This is a simulation-only function that converts natural language inputs
         into structured portfolio allocations for educational and research purposes.
-        No real trading, execution, or financial advice is provided.
+        ALL operations pass through MCP enforcement - no portfolio can be generated
+        without safety validation.
 
         Args:
             description: Natural language portfolio description
@@ -68,7 +72,40 @@ class ControlledAgent:
             }
 
         Raises:
-            ValueError: If description cannot be processed or violates constraints
+            MCPViolation: If input or output violates safety constraints
+            ValueError: If description cannot be processed
+        """
+        # STEP 1: MCP PRE-CHECK - Block forbidden investment language
+        # This is MANDATORY - no portfolio generation without this gate
+        self.mcp.pre_check(description)
+
+        # STEP 2: Generate portfolio using rule-based logic
+        portfolio_spec = self._build_portfolio(description)
+
+        # STEP 3: MCP POST-CHECK - Validate output safety and structure
+        # This is MANDATORY - all outputs must pass safety validation
+        self.mcp.post_check(portfolio_spec)
+
+        # Log the decision for audit purposes
+        self._log_decision("portfolio_planning", {
+            "input": description,
+            "output": portfolio_spec
+        })
+
+        return portfolio_spec
+
+    def _build_portfolio(self, description: str) -> Dict[str, Any]:
+        """
+        Internal portfolio generation logic (rule-based).
+
+        This method contains the actual portfolio construction rules.
+        It is called ONLY after MCP pre-check passes.
+
+        Args:
+            description: Validated input description
+
+        Returns:
+            Portfolio specification dictionary
         """
         # Convert to lowercase for case-insensitive matching
         desc_lower = description.lower()
@@ -123,25 +160,12 @@ class ControlledAgent:
             ]
             rationale = "This simulation portfolio provides a balanced approach suitable for general portfolio construction education and research."
 
-        # Validate weights sum to exactly 100 (safety check)
-        total_weight = sum(item["weight"] for item in allocation)
-        if total_weight != 100:
-            raise ValueError(f"Portfolio weights must sum to 100, got {total_weight}")
-
         # Create the structured output
-        portfolio_spec = {
+        return {
             "portfolio_name": portfolio_name,
             "allocation": allocation,
             "rationale": rationale
         }
-
-        # Log the decision for audit purposes
-        self._log_decision("portfolio_planning", {
-            "input": description,
-            "output": portfolio_spec
-        })
-
-        return portfolio_spec
 
     def _log_decision(self, decision_type: str, details: Dict[str, Any]) -> None:
         """
